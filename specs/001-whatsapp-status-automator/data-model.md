@@ -18,7 +18,7 @@ pero modela los ajustes globales.
 | `publishIntervalSeconds` | entero ≥ 0 | espera entre publicaciones consecutivas; default 60 | FR-015 |
 | `attemptTimeoutSeconds` | entero 1–90 | techo de cada intento; default 90, **nunca > 90** | FR-008 |
 | `dishes[]` | lista de Plato | ≥ 1 elemento | FR-003 |
-| `schedules[]` | lista de Horario | ≥ 1 elemento; si el array está vacío el sistema queda en espera silenciosa | edge case «sin horarios» |
+| `schedules[]` | lista de Horario | opcional; ausente o vacío ⇒ espera silenciosa, exit 0 | edge case «sin horarios» |
 
 **Validación (nivel config)**: JSON parseable + esquema AJV ⇒ si falla: log
 `config-invalida`, **cero** publicaciones y salida con error claro e inmediato

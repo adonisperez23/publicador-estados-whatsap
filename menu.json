@@ -1,0 +1,26 @@
+{
+  "publishIntervalSeconds": 60,
+  "attemptTimeoutSeconds": 90,
+  "dishes": [
+    {
+      "id": "ensalada-cesar",
+      "image": "ensalada.png",
+      "name": "Ensalada César",
+      "price": "$8.50",
+      "description": "Lechuga, pollo a la plancha, parmesano y aderezo casero",
+      "cta": "Pide la tuya hoy"
+    },
+    {
+      "id": "pasta-carbonara",
+      "image": "pasta.png",
+      "name": "Pasta Carbonara",
+      "price": "$11.00",
+      "description": "Spaghetti, guanciale, huevo y pecorino",
+      "cta": "Reserva tu porción"
+    }
+  ],
+  "schedules": [
+    { "cron": "0 12 * * *", "dishIds": ["ensalada-cesar", "pasta-carbonara"] },
+    { "cron": "30 19 * * *", "dishIds": ["pasta-carbonara"] }
+  ]
+}

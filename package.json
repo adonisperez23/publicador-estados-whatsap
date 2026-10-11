@@ -1,0 +1,21 @@
+{
+  "name": "automatizador-estados-whatsapp",
+  "version": "1.0.0",
+  "description": "Daemon que publica Estados de WhatsApp Business con el menú del día a horarios configurados (Playwright + node-cron).",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "node --test",
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "node-cron": "^3.0.3",
+    "playwright": "^1.49.0"
+  }
+}

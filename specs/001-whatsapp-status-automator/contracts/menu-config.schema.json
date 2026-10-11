@@ -4,7 +4,7 @@
   "title": "menu.json — Configuración del Automatizador de Estados",
   "description": "Contrato de la configuración externa (FR-003/FR-004). Reglas semánticas no expresables en JSON Schema se validan en lib/config.js: (1) cada schedules[].dishIds[x] debe existir en dishes[].id; (2) el mensaje compuesto del plato (name+price+description+cta) debe tener <= 1024 caracteres; (3) la imagen debe existir y ser legible en assets/ antes de publicar (validación por intento, FR-006).",
   "type": "object",
-  "required": ["dishes", "schedules"],
+  "required": ["dishes"],
   "additionalProperties": false,
   "properties": {
     "publishIntervalSeconds": {
@@ -67,8 +67,7 @@
     },
     "schedules": {
       "type": "array",
-      "minItems": 1,
-      "description": "Horarios de publicación (FR-004). Un array vacío dejaría el sistema en espera silenciosa; se prohíbe para forzar configuración explícita.",
+      "description": "Horarios de publicación (FR-004). Campo opcional: si está ausente o vacío el sistema queda en espera silenciosa sin errores y con exit code 0 (edge case «sin horarios», quickstart S12, contrato de exit codes en log-format.md).",
       "items": {
         "type": "object",
         "required": ["cron", "dishIds"],

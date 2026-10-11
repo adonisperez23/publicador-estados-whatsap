@@ -1,0 +1,23 @@
+# Sesión de WhatsApp (credencial) — FR-016, Principio IV
+session/
+
+# Dependencias y build
+node_modules/
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Entorno
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
+.idea/

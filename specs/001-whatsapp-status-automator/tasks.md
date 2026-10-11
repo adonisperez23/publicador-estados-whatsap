@@ -29,10 +29,10 @@ Single project plano en la raíz (fijado por plan.md): `index.js`, `whatsappBot.
 
 **Purpose**: Project initialization and basic structure per plan.md «Project Structure»
 
-- [ ] T001 Create project structure per implementation plan: `lib/`, `assets/`, `session/`, `tests/unit/`, `tests/contract/`, `tests/integration/` at repository root
-- [ ] T002 Initialize package.json (CommonJS) in `package.json` with dependencies `playwright`, `node-cron`, `ajv` and script `"test": "node --test tests/"`
-- [ ] T003 [P] Configure `.gitignore` at repository root to exclude `session/` and sensitive data (FR-016, Principio IV)
-- [ ] T004 [P] Install Chromium browser for Playwright via `npx playwright install chromium`
+- [X] T001 Create project structure per implementation plan: `lib/`, `assets/`, `session/`, `tests/unit/`, `tests/contract/`, `tests/integration/` at repository root
+- [X] T002 Initialize package.json (CommonJS) in `package.json` with dependencies `playwright`, `node-cron`, `ajv` and script `"test": "node --test tests/"`
+- [X] T003 [P] Configure `.gitignore` at repository root to exclude `session/` and sensitive data (FR-016, Principio IV)
+- [X] T004 [P] Install Chromium browser for Playwright via `npx playwright install chromium`
 
 **Checkpoint**: Project skeleton ready — foundational work can begin
 
@@ -44,10 +44,10 @@ Single project plano en la raíz (fijado por plan.md): `index.js`, `whatsappBot.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Implement `lib/logger.js` emitting one line per event per contracts/log-format.md: `<ISO-8601 local> | <intento|omision|sistema> | <plato|-|> | <exito|fallo> | <motivo|->` with the closed motivo enum (`imagen-faltante`, `texto-vacío`, `texto-largo`, `config-invalida`, `sesion-no-disponible`, `timeout`, `error-interfaz`, `error-red`)
-- [ ] T006 Implement `lib/config.js`: load `menu.json`, validate with AJV against `specs/001-whatsapp-status-automator/contracts/menu-config.schema.json`, apply defaults (`publishIntervalSeconds` 60, `attemptTimeoutSeconds` 90), enforce semantic rule «every `schedules[].dishIds[x]` MUST exist in `dishes[].id`», and fail with a clear immediate error (exit ≠ 0, log `config-invalida`) on any violation
-- [ ] T007 [P] Contract test validating `menu.json` against `specs/001-whatsapp-status-automator/contracts/menu-config.schema.json` in `tests/contract/test_menu_config.test.js` (valid config passes; orphan `dishIds`, empty text fields, `attemptTimeoutSeconds` > 90 fail)
-- [ ] T008 [P] Contract test asserting `.gitignore` contains `session/` in `tests/contract/test_session_gitignore.test.js` (research.md R9)
+- [X] T005 Implement `lib/logger.js` emitting one line per event per contracts/log-format.md: `<ISO-8601 local> | <intento|omision|sistema> | <plato|-|> | <exito|fallo> | <motivo|->` with the closed motivo enum (`imagen-faltante`, `texto-vacío`, `texto-largo`, `config-invalida`, `sesion-no-disponible`, `timeout`, `error-interfaz`, `error-red`)
+- [X] T006 Implement `lib/config.js`: load `menu.json`, validate with AJV against `specs/001-whatsapp-status-automator/contracts/menu-config.schema.json`, apply defaults (`publishIntervalSeconds` 60, `attemptTimeoutSeconds` 90), enforce semantic rules: (a) «every `schedules[].dishIds[x]` MUST exist in `dishes[].id`»; (b) «every `dishes[].id` MUST be unique» (duplicate ⇒ `config-invalida`); (c) absent/empty `schedules` is VALID and selects silent-wait mode (exit 0, no error — spec edge case «sin horarios»); and fail with a clear immediate error (exit ≠ 0, log `config-invalida`) on any other violation
+- [X] T007 [P] Contract test validating `menu.json` against `specs/001-whatsapp-status-automator/contracts/menu-config.schema.json` in `tests/contract/test_menu_config.test.js` (valid config passes; absent/empty `schedules` passes; orphan `dishIds`, duplicate `id`, empty text fields, `attemptTimeoutSeconds` > 90 fail)
+- [X] T008 [P] Contract test asserting `.gitignore` contains `session/` in `tests/contract/test_session_gitignore.test.js` (research.md R9)
 
 **Checkpoint**: Foundation ready — user story implementation can now begin
 
@@ -63,15 +63,15 @@ Single project plano en la raíz (fijado por plan.md): `index.js`, `whatsappBot.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Unit test for future-only cron scheduling semantics (missed schedules omitted, no backfill) in `tests/unit/test_scheduler.test.js` (quickstart S6, Clarificación 1)
-- [ ] T010 [P] [US1] Unit test for global mutex serialization and `publishIntervalSeconds` delay between consecutive publications (zero concurrency) in `tests/unit/test_mutex.test.js` (FR-013, FR-015, quickstart S7/S10)
+- [X] T009 [P] [US1] Unit test for future-only cron scheduling semantics (missed schedules omitted, no backfill) in `tests/unit/test_scheduler.test.js` (quickstart S6, Clarificación 1)
+- [X] T010 [P] [US1] Unit test for global mutex serialization and `publishIntervalSeconds` delay between consecutive publications (zero concurrency) in `tests/unit/test_mutex.test.js` (FR-013, FR-015, quickstart S7/S10)
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `whatsappBot.js`: `chromium.launchPersistentContext('session/', {...})` headful, navigate WhatsApp Web, publish ONE Status (image via `setInputFiles` on hidden file input, dish text, publish, confirmation) using only stable selectors (`page.getByRole(...)`, `[data-icon="..."]`, `[aria-label="..."]`), all browser blocks wrapped in `try/catch/finally` (FR-009, FR-012, Principios IV/V/VII, research.md R2/R4)
-- [ ] T012 [US1] Implement session authentication check at startup in `whatsappBot.js`: verify logged-in state via stable selector (e.g. `role="navigation"` / `data-icon="chat"`); if absent/unauthenticated, signal `sesion-no-disponible` — NEVER display QR or interactive login (FR-002, FR-014, research.md R3)
-- [ ] T013 [US1] Implement `index.js` orchestrator: load config via `lib/config.js`, register ONLY future occurrences of each `schedule.cron` with `node-cron` (no backfill), serialize all attempts through a global mutex with queue, insert `publishIntervalSeconds` between consecutive publications, enforce global attempt budget `attemptTimeoutSeconds` (≤ 90 s) via `Promise.race`/timer wrapping the whole attempt, map failures to `timeout`/`error-interfaz`/`error-red` motivos, and continue with the next schedule after a failure (FR-001, FR-008, FR-011, FR-015, research.md R6/R8)
-- [ ] T014 [US1] Apply session directory security at startup in `index.js`: ensure `session/` exists check, `chmod 700` on `session/` (`600` on sensitive files where the FS allows), abort with clear error + log `sesion-no-disponible` if session missing (FR-014, FR-016, research.md R9)
+- [X] T011 [US1] Implement `whatsappBot.js`: `chromium.launchPersistentContext('session/', {...})` headful, navigate WhatsApp Web, publish ONE Status (image via `setInputFiles` on hidden file input, dish text, publish, confirmation) using only stable selectors (`page.getByRole(...)`, `[data-icon="..."]`, `[aria-label="..."]`), all browser blocks wrapped in `try/catch/finally` (FR-009, FR-012, Principios IV/V/VII, research.md R2/R4)
+- [X] T012 [US1] Implement session authentication check at startup in `whatsappBot.js`: verify logged-in state via stable selector (e.g. `role="navigation"` / `data-icon="chat"`); if absent/unauthenticated, signal `sesion-no-disponible` — NEVER display QR or interactive login (FR-002, FR-014, research.md R3)
+- [X] T013 [US1] Implement `index.js` orchestrator: load config via `lib/config.js`, register ONLY future occurrences of each `schedule.cron` with `node-cron` (no backfill), serialize all attempts through a global mutex with queue, insert `publishIntervalSeconds` between consecutive publications, enforce global attempt budget `attemptTimeoutSeconds` (≤ 90 s) via `Promise.race`/timer wrapping the whole attempt, map failures to `timeout`/`error-interfaz`/`error-red` motivos, and continue with the next schedule after a failure (FR-001, FR-008, FR-011, FR-015, research.md R6/R8)
+- [X] T014 [US1] Apply session directory security at startup in `index.js`: ensure `session/` exists check, `chmod 700` on `session/` (`600` on sensitive files where the FS allows), abort with clear error + log `sesion-no-disponible` if session missing (FR-014, FR-016, research.md R9)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -87,13 +87,13 @@ Single project plano en la raíz (fijado por plan.md): `index.js`, `whatsappBot.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T015 [P] [US2] Unit tests for config loading edge cases (missing file, malformed JSON, duplicate `id`, empty `dishes`/`schedules`, orphan `dishIds`) asserting clear `config-invalida` failure in `tests/unit/test_config.test.js`
+- [X] T015 [P] [US2] Unit tests for config loading edge cases (missing file, malformed JSON, duplicate `id`, empty `dishes`, orphan `dishIds`) asserting clear `config-invalida` failure, plus absent/empty `schedules` asserting VALID silent-wait selection, in `tests/unit/test_config.test.js`
 
 ### Implementation for User Story 2
 
-- [ ] T016 [P] [US2] Create example `menu.json` at repository root with `publishIntervalSeconds`, `attemptTimeoutSeconds`, ≥ 1 dish (`id`, `image`, `name`, `price`, `description`, `cta`) and ≥ 1 schedule (`cron` 5 fields, `dishIds` referencing valid ids) conforming to `specs/001-whatsapp-status-automator/contracts/menu-config.schema.json`
-- [ ] T017 [P] [US2] Add a sample dish image placeholder note in `assets/README.md` documenting that every dish's image MUST exist physically in `assets/` and is linked to its text exclusively by `id` (FR-005, Principio III)
-- [ ] T018 [US2] Document the configuration workflow in `README.md`: how to add a dish, edit a price, and move a schedule in `menu.json` in ≤ 3 minutes without editing code (SC-002), including cron 5-field syntax in local timezone
+- [X] T016 [P] [US2] Create example `menu.json` at repository root with `publishIntervalSeconds`, `attemptTimeoutSeconds`, ≥ 1 dish (`id`, `image`, `name`, `price`, `description`, `cta`) and ≥ 1 schedule (`cron` 5 fields, `dishIds` referencing valid ids) conforming to `specs/001-whatsapp-status-automator/contracts/menu-config.schema.json`
+- [X] T017 [P] [US2] Add a sample dish image placeholder note in `assets/README.md` documenting that every dish's image MUST exist physically in `assets/` and is linked to its text exclusively by `id` (FR-005, Principio III)
+- [X] T018 [US2] Document the configuration workflow in `README.md`: how to add a dish, edit a price, and move a schedule in `menu.json` in ≤ 3 minutes without editing code (SC-002), including cron 5-field syntax in local timezone
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -109,13 +109,13 @@ Single project plano en la raíz (fijado por plan.md): `index.js`, `whatsappBot.
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T019 [P] [US3] Unit tests for per-attempt dish validation (missing/unreadable/zero-size image → `imagen-faltante`; whitespace-only `name`/`price`/`description`/`cta` → `texto-vacío`; composite message > 1024 chars → `texto-largo`) in `tests/unit/test_validate_dish.test.js`
+- [X] T019 [P] [US3] Unit tests for per-attempt dish validation (missing/unreadable/zero-size image → `imagen-faltante`; whitespace-only `name`/`price`/`description`/`cta` → `texto-vacío`; composite message > 1024 chars → `texto-largo`) in `tests/unit/test_validate_dish.test.js`
 
 ### Implementation for User Story 3
 
-- [ ] T020 [US3] Implement `lib/validateDish.js`: per-attempt validation of image existence/readability/size > 0 under `assets/`, non-empty-after-`trim` text fields, and composite message (name + price + description + cta with fixed separators) ≤ `MAX_STATUS_TEXT_LENGTH = 1024`; returns success or a closed motivo enum value (FR-006, FR-007, research.md R10, data-model.md)
-- [ ] T021 [US3] Wire pre-publication validation into `index.js` before invoking `whatsappBot.js`: on validation failure emit one `omision` log line with motivo and continue with pending publications; NEVER pass partial/empty content to the bot (FR-006, FR-007, SC-003)
-- [ ] T022 [US3] Guarantee exactly one log line per attempt in `index.js` + `lib/logger.js`: `intento|exito`, `intento|fallo` + motivo, or `omision|fallo` + motivo; system events (`config-invalida`, `sesion-no-disponible`) logged as `sistema` with `plato=-`; no `session/` content ever logged (FR-010, SC-005, contracts/log-format.md invariants)
+- [X] T020 [US3] Implement `lib/validateDish.js`: per-attempt validation of image existence/readability/size > 0 under `assets/`, non-empty-after-`trim` text fields, and composite message (name + price + description + cta with fixed separators) ≤ `MAX_STATUS_TEXT_LENGTH = 1024`; returns success or a closed motivo enum value (FR-006, FR-007, research.md R10, data-model.md)
+- [X] T021 [US3] Wire pre-publication validation into `index.js` before invoking `whatsappBot.js`: on validation failure emit one `omision` log line with motivo and continue with pending publications; NEVER pass partial/empty content to the bot (FR-006, FR-007, SC-003)
+- [X] T022 [US3] Guarantee exactly one log line per attempt in `index.js` + `lib/logger.js`: `intento|exito`, `intento|fallo` + motivo, or `omision|fallo` + motivo; system events (`config-invalida`, `sesion-no-disponible`) logged as `sistema` with `plato=-`; no `session/` content ever logged (FR-010, SC-005, contracts/log-format.md invariants)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -125,10 +125,10 @@ Single project plano en la raíz (fijado por plan.md): `index.js`, `whatsappBot.
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T023 [P] Integration test scaffold driving the publish flow with Playwright against a controlled/mocked WhatsApp Web page in `tests/integration/test_publish_flow.test.js` (research.md R1)
-- [ ] T024 Run quickstart.md validation scenarios S1–S12 end-to-end and verify the post-run invariant greps (SC-001, SC-003, SC-005, SC-006, SC-007) per `specs/001-whatsapp-status-automator/quickstart.md`
-- [ ] T025 Complete `README.md` with setup (`npm install`, `npx playwright install chromium`), one-time manual QR login flow (outside the automated cycle), session permission verification, and daemon command `node index.js`
-- [ ] T026 Final review against `.specify/memory/constitution.md` (Principios I–VII) and `spec.md` FRs; ensure `npm test` (unit + contract) is green, no orphan Chromium processes, and no shadow code beyond the spec
+- [X] T023 [P] Integration test scaffold driving the publish flow with Playwright against a controlled/mocked WhatsApp Web page in `tests/integration/test_publish_flow.test.js` (research.md R1)
+- [X] T024 Run quickstart.md validation scenarios S1–S12 end-to-end and verify the post-run invariant greps (SC-001, SC-003, SC-005, SC-006, SC-007) per `specs/001-whatsapp-status-automator/quickstart.md`
+- [X] T025 Complete `README.md` with setup (`npm install`, `npx playwright install chromium`), one-time manual QR login flow (outside the automated cycle), session permission verification, and daemon command `node index.js`
+- [X] T026 Final review against `.specify/memory/constitution.md` (Principios I–VII) and `spec.md` FRs; ensure `npm test` (unit + contract) is green, no orphan Chromium processes, and no shadow code beyond the spec
 
 ---
 

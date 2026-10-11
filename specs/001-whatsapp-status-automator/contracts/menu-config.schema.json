@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local/automatizador-estados-whatsap/contracts/menu-config.schema.json",
+  "title": "menu.json — Configuración del Automatizador de Estados",
+  "description": "Contrato de la configuración externa (FR-003/FR-004). Reglas semánticas no expresables en JSON Schema se validan en lib/config.js: (1) cada schedules[].dishIds[x] debe existir en dishes[].id; (2) el mensaje compuesto del plato (name+price+description+cta) debe tener <= 1024 caracteres; (3) la imagen debe existir y ser legible en assets/ antes de publicar (validación por intento, FR-006).",
+  "type": "object",
+  "required": ["dishes", "schedules"],
+  "additionalProperties": false,
+  "properties": {
+    "publishIntervalSeconds": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3600,
+      "default": 60,
+      "description": "Espera entre publicaciones consecutivas, dentro de una banda o entre horarios contiguos (FR-015)."
+    },
+    "attemptTimeoutSeconds": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 90,
+      "default": 90,
+      "description": "Techo máximo de cada intento de publicación en segundos (FR-008, Clarificación: 90 s). Nunca puede superar 90."
+    },
+    "dishes": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Platos del menú (FR-003).",
+      "items": {
+        "type": "object",
+        "required": ["id", "image", "name", "price", "description", "cta"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]*$",
+            "minLength": 1,
+            "maxLength": 64,
+            "description": "Identidad única del plato; es el único vínculo imagen↔texto permitido (FR-005, Principio III)."
+          },
+          "image": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Nombre de archivo de imagen dentro de assets/ (debe existir y ser legible antes de publicar, FR-006)."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Nombre del plato; sin contenido vacío ni solo espacios (FR-007)."
+          },
+          "price": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Precio; sin contenido vacío (US3 AC2)."
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Descripción del plato."
+          },
+          "cta": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Llamada a la acción."
+          }
+        }
+      }
+    },
+    "schedules": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Horarios de publicación (FR-004). Un array vacío dejaría el sistema en espera silenciosa; se prohíbe para forzar configuración explícita.",
+      "items": {
+        "type": "object",
+        "required": ["cron", "dishIds"],
+        "additionalProperties": false,
+        "properties": {
+          "cron": {
+            "type": "string",
+            "pattern": "^\\s*\\S+\\s+\\S+\\s+\\S+\\s+\\S+\\s+\\S+\\s*$",
+            "description": "Expresión cron de 5 campos (minuto hora día-del-mes mes día-de-semana) en zona horaria local; dialecto node-cron (FR-004)."
+          },
+          "dishIds": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Platos que publica este horario, uno tras otro como Estados individuales (FR-001, Clarificación: varios platos por horario). Cada id debe existir en dishes[].id."
+          }
+        }
+      }
+    }
+  }
+}

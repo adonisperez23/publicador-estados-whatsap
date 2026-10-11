@@ -31,6 +31,16 @@
 > bot; registro detallado de logs en consola (éxitos, tiempos de espera, errores de
 > selectores o fallos de red).
 
+## Clarifications
+
+### Session 2026-10-11
+
+- Q: Si el programa no está ejecutando a la hora configurada (máquina apagada o proceso reiniciado), ¿qué ocurre con ese horario perdido al volver a arrancar? → A: Se omiten los horarios perdidos; solo se ejecutan los horarios futuros.
+- Q: Cuando un horario programado está configurado, ¿debe publicar un solo plato o varios platos? → A: Varios platos por horario, publicados uno tras otro como publicaciones individuales de Estado.
+- Q: Cuando se publican varios Estados seguidos (varios platos de un horario u horarios contiguos), ¿debe esperar el sistema entre publicaciones? → A: Sí, con un intervalo configurable entre publicaciones consecutivas.
+- Q: ¿Cómo deben protegerse los datos de acceso de WhatsApp guardados en la carpeta `session/`? → A: Excluidos del control de versiones y con permisos de archivo restringidos en disco.
+- Q: ¿Cuál es la duración máxima de un intento de publicación antes de marcarse como fallo por timeout? → A: 90 segundos por intento.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Publicación programada del menú sin intervención manual (Priority: P1)
@@ -147,14 +157,18 @@ en el registro de salida.
   ejecutan publicaciones concurrentes; el sistema evita el solape.
 - ¿Qué sucede si no hay ningún horario configurado? → El sistema queda en espera sin
   emitir errores ni publicar nada.
+- ¿Qué sucede si el programa no estaba ejecutando a la hora programada (apagado o
+  reiniciado)? → Ese horario se omite al volver a arrancar; solo se ejecutan los horarios
+  futuros, sin publicaciones atrasadas.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: En cada horario configurado, el sistema MUST publicar la imagen de un plato
-  junto con su texto asociado (nombre, precio, descripción y llamada a la acción) como
-  Estado de WhatsApp Business, sin intervención manual.
+- **FR-001**: En cada horario configurado, el sistema MUST publicar cada uno de los
+  platos asociados a ese horario —uno tras otro, cada uno como una publicación individual
+  de Estado con su imagen y su texto asociado (nombre, precio, descripción y llamada a la
+  acción)— sin intervención manual.
 - **FR-002**: El sistema MUST reutilizar la sesión ya autenticada del operador entre
   ejecuciones; las publicaciones programadas MUST NOT requerir escanear un código QR ni
   ningún login manual.
@@ -172,8 +186,9 @@ en el registro de salida.
   motivo y continuar con las publicaciones pendientes.
 - **FR-007**: El sistema MUST NOT publicar contenido parcial o vacío bajo ninguna
   circunstancia.
-- **FR-008**: Cada intento de publicación MUST finalizar dentro de tiempos de espera
-  explícitos; superarlos MUST registrarse como fallo en lugar de esperar indefinidamente.
+- **FR-008**: Cada intento de publicación MUST finalizar dentro de un tiempo máximo
+  explícito de 90 segundos; superarlo MUST registrarse como fallo de timeout en lugar de
+  esperar indefinidamente.
 - **FR-009**: Al terminar cada intento (éxito o fallo), el sistema MUST liberar todos los
   recursos que haya consumido, sin dejar procesos activos en segundo plano.
 - **FR-010**: El sistema MUST registrar en consola el resultado de cada intento (hora,
@@ -186,8 +201,15 @@ en el registro de salida.
   apariencia gráfica, que cambia con cada actualización de la plataforma.
 - **FR-013**: El sistema MUST NOT ejecutar dos publicaciones concurrentemente.
 - **FR-014**: Si la sesión autenticada no está disponible, el sistema MUST abortar la
-  ejecución con un error claro y MUST NOT intentar un login interactivo durante una
+  ejecución con un error claro y MUST NO intentar un login interactivo durante una
   ejecución automatizada.
+- **FR-015**: Entre publicaciones consecutivas (platos del mismo horario u horarios
+  contiguos), el sistema MUST respetar un intervalo mínimo configurable desde el archivo
+  de configuración, para reducir el riesgo de que la plataforma detecte publicaciones en
+  ráfaga.
+- **FR-016**: La carpeta `session/` MUST tratarse como dato sensible: MUST excluirse del
+  control de versiones y MUST mantener permisos de archivo restringidos al usuario que
+  ejecuta el sistema, para evitar el acceso no autorizado a la cuenta.
 
 ### Key Entities
 
@@ -208,7 +230,8 @@ en el registro de salida.
 
 - **SC-001**: Con sesión activa y conectividad estable, al menos el 95% de las
   publicaciones programadas de un día operativo ocurren dentro de los 2 minutos
-  posteriores a su hora configurada.
+  posteriores a su hora configurada; en horarios con varios platos ese plazo se amplía
+  según el intervalo configurado entre publicaciones consecutivas.
 - **SC-002**: El operador puede cambiar un precio, agregar un plato o mover un horario en
   3 minutos o menos, sin asistencia técnica y sin editar código.
 - **SC-003**: Cero Estados publicados con imagen faltante o texto vacío en todas las

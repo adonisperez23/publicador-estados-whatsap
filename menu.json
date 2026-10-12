@@ -1,26 +1,52 @@
 {
-  "publishIntervalSeconds": 60,
-  "attemptTimeoutSeconds": 90,
-  "dishes": [
-    {
-      "id": "ensalada-cesar",
-      "image": "ensalada.png",
-      "name": "Ensalada César",
-      "price": "$8.50",
-      "description": "Lechuga, pollo a la plancha, parmesano y aderezo casero",
-      "cta": "Pide la tuya hoy"
-    },
-    {
-      "id": "pasta-carbonara",
-      "image": "pasta.png",
-      "name": "Pasta Carbonara",
-      "price": "$11.00",
-      "description": "Spaghetti, guanciale, huevo y pecorino",
-      "cta": "Reserva tu porción"
-    }
-  ],
-  "schedules": [
-    { "cron": "0 12 * * *", "dishIds": ["ensalada-cesar", "pasta-carbonara"] },
-    { "cron": "30 19 * * *", "dishIds": ["pasta-carbonara"] }
-  ]
+    "publishIntervalSeconds": 10,
+    "attemptTimeoutSeconds": 90,
+    "dishes": [
+        {
+            "id": "ensalada-cesar",
+            "image": "ensalada.png",
+            "name": "Ensalada César",
+            "price": "$8.50",
+            "description": "Lechuga, pollo a la plancha, parmesano y aderezo casero",
+            "cta": "Pide la tuya hoy"
+        },
+        {
+            "id": "pasta-carbonara",
+            "image": "pasta.png",
+            "name": "Pasta Carbonara",
+            "price": "$11.00",
+            "description": "Spaghetti, guanciale, huevo y pecorino",
+            "cta": "Reserva tu porción"
+        },
+        {
+            "id": "costillas-cerdo",
+            "image": "costillasdecerdo.jpg",
+            "name": "Costillas de cochino frito",
+            "price": "$9.99",
+            "description": "Costillas de cochino fritas con ensalada cocida y papas fritas",
+            "cta": "Reserva tu porción, elije tus contornos"
+        },
+        {
+            "id": "filet-pollo",
+            "image": "filetdepollo2.jpg",
+            "name": "Filet de pollo",
+            "price": "$9.99",
+            "description": "Filet de pollo con ensalada verde y papas al ajillo",
+            "cta": "Reserva tu porción, elije tus contornos"
+        },
+        {
+            "id": "lomo-cerdo",
+            "image": "lomodecerdo.jpg",
+            "name": "Lomo de cerdo",
+            "price": "$9.99",
+            "description": "lomo de cerdo con arroz, ensalada cocida y papas fritas",
+            "cta": "Reserva tu porción, elije tus contornos"
+        }
+    ],
+    "schedules": [
+        {
+            "cron": "43 20 * * *",
+            "dishIds": ["costillas-cerdo", "filet-pollo", "lomo-cerdo"]
+        }
+    ]
 }

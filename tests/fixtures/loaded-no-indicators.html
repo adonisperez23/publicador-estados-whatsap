@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Página cargada sin indicadores (fixture)</title>
+</head>
+<body>
+  <!-- La página termina de cargar (readyState ≠ loading) pero NINGÚN indicador
+       esperado está presente. Causa esperada: cambio-interfaz (FR-004c,
+       Clarificación 2: la carga completada prima sobre la expiración del plazo). -->
+  <div class="app-wrapper-web">
+    <main role="main">
+      <p class="placeholder">Interfaz cargada: sin indicadores reconocibles.</p>
+      <span data-icon="leaf" aria-hidden="true"></span>
+      <span data-icon="refresh" aria-hidden="true"></span>
+      <div class="generic-header" role="banner">Encabezado genérico</div>
+    </main>
+  </div>
+</body>
+</html>

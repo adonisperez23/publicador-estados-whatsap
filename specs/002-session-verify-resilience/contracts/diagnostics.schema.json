@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local/automatizador-estados-whatsap/contracts/002-diagnostics.schema.json",
+  "title": "summary.json — Resumen estructural de un fallo de verificación de sesión",
+  "description": "Contrato del resumen de diagnóstico (FR-007, FR-008). Solo campos estructurales: por diseño este esquema NO admite cuerpos de mensajes, contactos, credenciales ni datos de session/. La captura visual completa vive en screenshot.png, exclusivamente local (Clarificación 1).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["timestamp", "causa", "esperaAplicadaMs", "duracionMs", "pagina", "senalQr", "indicadores"],
+  "properties": {
+    "timestamp": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}",
+      "description": "Marca de tiempo local ISO-8601 del fallo."
+    },
+    "causa": {
+      "type": "string",
+      "enum": ["sesion-caducada", "interfaz-no-cargo-a-tiempo", "cambio-interfaz", "error-red"],
+      "description": "Causa exclusiva del fallo (FR-004). Mapeo a motivo de log en verification-contract.md §2."
+    },
+    "esperaAplicadaMs": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Tiempo de espera efectivo del orquestador en ms, sin clamp interno (FR-006)."
+    },
+    "duracionMs": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Duración real de la clasificación; siempre ≤ esperaAplicadaMs (FR-013, SC-007)."
+    },
+    "pagina": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "readyState"],
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "URL observada de la página (vacía si no hubo página por fallo de arranque)."
+        },
+        "readyState": {
+          "type": "string",
+          "enum": ["loading", "interactive", "complete", ""],
+          "description": "Estado del documento al decidir: vacío si no hubo página. Regla de desempate (b) vs (c): ≠ loading ⇒ cambio de interfaz."
+        }
+      }
+    },
+    "senalQr": {
+      "type": ["boolean", "null"],
+      "description": "Señal de la pantalla de QR/emparejamiento al decidir; null si no hubo página."
+    },
+    "indicadores": {
+      "type": "array",
+      "description": "Estado de cada indicador estable alternativo evaluado (FR-001/007). Puede ser vacío solo si no hubo página.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["nombre", "presente"],
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Identificador estable del indicador (p. ej. chat-icon, nav-sidebar, status-tab)."
+          },
+          "presente": {
+            "type": "boolean",
+            "description": "true si estaba visible en el momento de decidir."
+          }
+        }
+      }
+    },
+    "detalle": {
+      "type": "string",
+      "description": "Texto humano adicional (p. ej. error de red concreto, «navegador no disponible: …»). Sin contenido de la sesión."
+    },
+    "captura": {
+      "type": "string",
+      "description": "Nombre del fichero de captura incluido en la carpeta (p. ej. screenshot.png); presente solo si hubo página."
+    }
+  }
+}

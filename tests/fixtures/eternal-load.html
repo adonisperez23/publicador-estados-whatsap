@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Carga eterna (fixture)</title>
+  <!-- El servidor sirve SOLO un prefijo truncado de esta página y nunca cierra la
+       respuesta (ver tests/helpers/fixtureServer.js): domcontentloaded no se
+       dispara y readyState queda en 'loading'. Causa esperada:
+       interfaz-no-cargo-a-tiempo (FR-004b). -->
+  <script src="/hang.js"></script>
+</head>
+<body>
+  <p>Carga que nunca termina (fixture local).</p>
+</body>
+</html>

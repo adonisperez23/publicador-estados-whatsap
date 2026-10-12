@@ -1,6 +1,12 @@
 # Sesión de WhatsApp (credencial) — FR-016, Principio IV
 session/
 
+# Artefactos de diagnóstico de verificación (solo local, FR-008) — T001
+diagnostics/
+
+# Pidfile del daemon (T001)
+.daemon.pid
+
 # Dependencias y build
 node_modules/
 dist/

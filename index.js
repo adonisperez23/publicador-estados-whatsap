@@ -140,6 +140,61 @@ function keepAlive() {
   process.on('SIGTERM', bye);
 }
 
+// T016 (US2): mapeo causa ⇒ motivo de log (enum SIN ampliar, Assumption del spec)
+// y plantillas de mensaje en lenguaje del operador — contracts/verification-contract.md §2.
+const CAUSA_MOTIVO = Object.freeze({
+  'sesion-caducada': 'sesion-no-disponible',
+  'interfaz-no-cargo-a-tiempo': 'timeout',
+  'cambio-interfaz': 'error-interfaz',
+  'error-red': 'error-red'
+});
+
+/**
+ * Compone el mensaje de operador para un fallo de verificación (FR-005, SC-001):
+ * `<motivo>: <causa> — <acción sugerida>`, con la ruta de evidencia cuando existe.
+ * @param {{causa: string, esperaAplicadaMs: number, detalle: string}} session
+ * @param {string|null} ruta carpeta diagnostics/verification-<ts>/ creada para el fallo
+ */
+function componerMensajeFallo(session, ruta) {
+  const causa = session && session.causa;
+  const motivo = CAUSA_MOTIVO[causa];
+  if (!motivo) {
+    throw new TypeError(`causa de verificación desconocida: ${causa}`);
+  }
+  const evidencia = ruta ? ` Evidencia: ${ruta}` : '';
+  const detalle = String((session && session.detalle) || '');
+
+  switch (causa) {
+    case 'sesion-caducada':
+      return (
+        `${motivo}: sesión caducada — restablece la sesión con "npm run login" ` +
+        `(escanea el QR); el ciclo automatizado nunca pide login.${evidencia}`
+      );
+    case 'interfaz-no-cargo-a-tiempo':
+      if (detalle.startsWith('navegador no disponible')) {
+        return (
+          `${motivo}: la interfaz no cargó a tiempo (${detalle}) — ` +
+          `reinstala chromium (\`npx playwright install chromium\`).${evidencia}`
+        );
+      }
+      return (
+        `${motivo}: la interfaz no cargó a tiempo (espera aplicada: ${session.esperaAplicadaMs} ms) — ` +
+        `aumenta sessionVerifyTimeoutSeconds o revisa la conexión.${evidencia}`
+      );
+    case 'cambio-interfaz':
+      return ruta
+        ? `${motivo}: la interfaz cargó sin los indicadores esperados — posible cambio de WhatsApp Web; revisa la evidencia en ${ruta}`
+        : `${motivo}: la interfaz cargó sin los indicadores esperados — posible cambio de WhatsApp Web (artefactos de diagnóstico no disponibles)`;
+    case 'error-red':
+      return (
+        `${motivo}: no se pudo alcanzar WhatsApp Web (${detalle || 'sin detalle'}) — ` +
+        `revisa la conectividad.${evidencia}`
+      );
+    default:
+      throw new TypeError(`causa de verificación desconocida: ${causa}`);
+  }
+}
+
 async function main() {
   let config;
   try {
@@ -167,9 +222,16 @@ async function main() {
 
   const bot = require('./whatsappBot');
   const session = await bot.verifySession({ timeoutMs: 30000 });
-  if (!session.authenticated) {
-    logger.logSystem({ resultado: 'fallo', motivo: 'sesion-no-disponible' });
-    console.error(`sesion-no-disponible: ${session.reason || 'sesión no autenticada'}`);
+  if (!session.autenticado) {
+    // T016: causa → motivo → plantilla (FR-005/014, SC-001). La ruta de evidencia
+    // la añade US3 (T022); el motivo sale del enum vigente sin ampliación.
+    const motivo = CAUSA_MOTIVO[session.causa] || 'sesion-no-disponible';
+    logger.logSystem({ resultado: 'fallo', motivo });
+    console.error(
+      session.causa
+        ? componerMensajeFallo(session, null)
+        : `sesion-no-disponible: ${session.detalle || 'sesión no autenticada'}`
+    );
     return 1;
   }
 
@@ -198,4 +260,16 @@ if (require.main === module) {
   });
 }
 
-module.exports = { createMutex, registerSchedules, composeStatusText, ensureSessionPermissions, attemptPublish, main, MENU_PATH, SESSION_DIR, ASSETS_DIR };
+module.exports = {
+  createMutex,
+  registerSchedules,
+  composeStatusText,
+  ensureSessionPermissions,
+  attemptPublish,
+  main,
+  MENU_PATH,
+  SESSION_DIR,
+  ASSETS_DIR,
+  CAUSA_MOTIVO,
+  componerMensajeFallo
+};

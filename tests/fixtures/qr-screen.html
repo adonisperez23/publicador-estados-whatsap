@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>WhatsApp — emparejar teléfono (fixture QR)</title>
+  <style>
+    canvas { border: 1px solid #ccc; background: #fff; width: 228px; height: 228px; }
+    body { font-family: sans-serif; }
+  </style>
+</head>
+<body>
+  <!-- Pantalla de emparejamiento real (DOM observado oct-2026): el código QR vive en un
+       canvas con aria-label fijo «Scan this QR code to link a device!». SIN ningún
+       indicador autenticado. Causa esperada: sesion-caducada (research R3, paso 3). -->
+  <div class="pairing">
+    <h1>Conecta tu teléfono</h1>
+    <p>Escanea el código QR con tu teléfono para vincular este dispositivo.</p>
+    <canvas id="qrcode" width="228" height="228" role="img" aria-label="Scan this QR code to link a device!"></canvas>
+  </div>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>WhatsApp — fixture de sesión autenticada</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; }
+    [role="tablist"], [role="grid"], [role="listitem"], button { display: block; }
+    button { padding: 6px 10px; }
+    [role="grid"] { min-height: 80px; padding: 8px; }
+  </style>
+</head>
+<body>
+  <!-- Réplica local de la interfaz autenticada de WhatsApp Web (DOM observado oct-2026):
+       barra de navegación con aria-label, filtros en role="tablist" y chats en
+       role="grid"/role="listitem" (sin data-icon de navegación ni role="navigation").
+       ?hide=grid|tablist|listitem|chats oculta cada indicador por turnos (SC-002);
+       ?hide=all los oculta todos. -->
+  <div id="app">
+    <header>
+      <button aria-label="Chats" id="nav-chats">Chats</button>
+      <button aria-label="Llamadas">Llamadas</button>
+      <button aria-label="Estados">Estados</button>
+    </header>
+    <div role="tablist" aria-label="chat-list-filters" id="chat-filters">
+      <button role="tab" aria-selected="true">Todos</button>
+      <button role="tab" aria-selected="false">No leídos</button>
+    </div>
+    <div role="grid" aria-label="Lista de chats" id="chat-grid">
+      <div role="row">
+        <div role="gridcell">
+          <div role="listitem" id="chat-row">Chat de ejemplo (fixture local, sin contenido real)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    const q = new URLSearchParams(location.search);
+    const hide = q.get('hide');
+    const targets = {
+      grid: 'chat-grid',
+      tablist: 'chat-filters',
+      listitem: 'chat-row',
+      chats: 'nav-chats'
+    };
+    if (hide === 'all') {
+      for (const id of Object.values(targets)) {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+      }
+    } else if (targets[hide]) {
+      const el = document.getElementById(targets[hide]);
+      if (el) el.remove();
+    }
+  </script>
+</body>
+</html>

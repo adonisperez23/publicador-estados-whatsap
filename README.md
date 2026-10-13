@@ -98,6 +98,22 @@ multi-plato) está en
 `specs/001-whatsapp-status-automator/quickstart.md`; requiere una sesión
 autenticada y un teléfono con la cuenta del negocio.
 
+## Servicio automático (arranque con la PC)
+
+El daemon corre como servicio de systemd (`whatsapp-status.service`) y arranca
+solo al encender la máquina, sin necesidad de iniciar sesión. Guía completa de
+operación —parar, arrancar, reiniciar, logs, motivos de fallo y desinstalación—
+en **[`OPERACION.md`](OPERACION.md)**.
+
+```bash
+systemctl --user stop whatsapp-status.service     # APAGAR el proceso
+systemctl --user status whatsapp-status.service   # estado
+tail -f /home/adonis/whatsapp-status.log          # log del daemon
+```
+
+> Si editás `menu.json` con la PC encendida, reiniciá el servicio para que tome
+> los cambios. Con la PC apagada, el próximo encendido los relee solo.
+
 ## Estructura
 
 ```
@@ -110,6 +126,7 @@ menu.json         Tu configuración de platos y horarios
 assets/           Imágenes de los platos
 session/          Sesión de navegador persistente (credencial, gitignored)
 tests/            Unit / contract / integration (node:test)
+OPERACION.md      Operación del servicio systemd (parar/arrancar/logs)
 ```
 
 Los tests de integración usan una página mock con los mismos selectores

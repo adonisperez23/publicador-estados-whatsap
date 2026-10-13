@@ -3,50 +3,168 @@
     "attemptTimeoutSeconds": 90,
     "dishes": [
         {
-            "id": "ensalada-cesar",
-            "image": "ensalada.png",
-            "name": "Ensalada César",
-            "price": "$8.50",
-            "description": "Lechuga, pollo a la plancha, parmesano y aderezo casero",
-            "cta": "Pide la tuya hoy"
+            "id": "pasta-bologna",
+            "image": "bologna.jpg",
+            "name": "Pasta a la boloña",
+            "price": "$6.99",
+            "description": "Spaghetti con salsa a la boloñesa, con queso parmesano y tajadas",
+            "cta": "Pidelo aqui o en la app https://loscincosabores.com"
         },
         {
-            "id": "pasta-carbonara",
-            "image": "pasta.png",
-            "name": "Pasta Carbonara",
-            "price": "$11.00",
-            "description": "Spaghetti, guanciale, huevo y pecorino",
-            "cta": "Reserva tu porción"
+            "id": "pollo-plancha",
+            "image": "polloalaplanchaweb.jpg",
+            "name": "Pollo a la plancha",
+            "price": "$6.99",
+            "description": "Muslo de pollo a la plancha acompañado con arroz, ensalada cocida y tajadas",
+            "cta": "Pidelo aqui con los contornos que gustes o en la app https://loscincosabores.com"
+        },
+        {
+            "id": "pollo-guisado",
+            "image": "Pollo_guisadoweb.jpg",
+            "name": "Pollo guisado",
+            "price": "$6.99",
+            "description": "Pollo guisado guisado acompañado con pasta, ensalada cocida y tajada",
+            "cta": "Pidelo aqui con los contornos que gustes o en la app https://loscincosabores.com"
+        },
+        {
+            "id": "pabellon",
+            "image": "pabellonweb.jpg",
+            "name": "Pabellón criollo",
+            "price": "$7.99",
+            "description": "Carne mechada acompañado con Arroz, caraotas negras y plátano frito",
+            "cta": "Pidelo aqui con los contornos que gustes o en la app https://loscincosabores.com"
+        },
+        {
+            "id": "pescado-guinua",
+            "image": "pescadocoginua.jpg",
+            "name": "Pescado frito",
+            "price": "$7.99",
+            "description": "Pescado frito acompañado con arepas asadas y ensalada verde",
+            "cta": "Pidelo aqui con los contornos que gustes o en la app https://loscincosabores.com"
+        },
+        {
+            "id": "callos",
+            "image": "callos-min.jpg",
+            "name": "Callos Madrileños",
+            "price": "$9.99",
+            "description": "Callos guisados con garbanzos, hueso ahumado, chorizo ahumado y calabreza, acompañado con arroz y tajadas",
+            "cta": "Pidelo aqui con los contornos que gustes o en la app https://loscincosabores.com"
         },
         {
             "id": "costillas-cerdo",
             "image": "costillasdecerdo.jpg",
             "name": "Costillas de cochino frito",
             "price": "$9.99",
-            "description": "Costillas de cochino fritas con ensalada cocida y papas fritas",
-            "cta": "Reserva tu porción, elije tus contornos"
+            "description": "Costillas de cochino frito acompañado con ensalada cocida y papas fritas",
+            "cta": "Pidelo aqui con los contornos que gustes o en la app https://loscincosabores.com"
+        },
+        {
+            "id": "costillas-guisadas",
+            "image": "costillasguisadasweb.jpg",
+            "name": "Costillas guisadas",
+            "price": "$9.99",
+            "description": "Costillas de res guisadas acompañado con pasta, ensalada verde y tajada",
+            "cta": "Pidelo aqui con los contornos que gustes o en la app https://loscincosabores.com"
         },
         {
             "id": "filet-pollo",
             "image": "filetdepollo2.jpg",
             "name": "Filet de pollo",
             "price": "$9.99",
-            "description": "Filet de pollo con ensalada verde y papas al ajillo",
-            "cta": "Reserva tu porción, elije tus contornos"
+            "description": "Filet de pechuga de pollo acompañado con ensalada verde y papas al ajillo",
+            "cta": "Pidelo aqui con los contornos que gustes o en la app https://loscincosabores.com"
         },
+        {
+            "id": "higado",
+            "image": "higado1-min.jpg",
+            "name": "Bisteck de higado encebollado",
+            "price": "$9.99",
+            "description": "Bisteck de Hígado de res encebollado acompañado con pure de papas y ensalada verde",
+            "cta": "Pidelo aqui con los contornos que gustes o en la app https://loscincosabores.com"
+        },
+        {
+            "id": "lengua-salsa",
+            "image": "lenguaensalsaweb.jpg",
+            "name": "Lengua en salsa",
+            "price": "$9.99",
+            "description": "Lengua de res en salsa acompañado con ensalada cocida, arroz y tajada",
+            "cta": "Pidelo aqui con los contornos que gustes o en la app https://loscincosabores.com"
+        },
+
         {
             "id": "lomo-cerdo",
             "image": "lomodecerdo.jpg",
             "name": "Lomo de cerdo",
             "price": "$9.99",
-            "description": "lomo de cerdo con arroz, ensalada cocida y papas fritas",
+            "description": "lomo de cerdo acompañado con arroz, ensalada cocida y papas fritas",
+            "cta": "Pidelo aqui con los contornos que gustes o en la app https://loscincosabores.com"
+        },
+        {
+            "id": "milanesa",
+            "image": "milanesa-min.jpg",
+            "name": "Milanesa de pollo",
+            "price": "$9.99",
+            "description": "Milanesa de pollo acompañado con ensalada verde y papas fritas",
+            "cta": "Pidelo aqui con los contornos que gustes o en la app https://loscincosabores.com"
+        },
+        {
+            "id": "solomo",
+            "image": "solomo-min.jpg",
+            "name": "Bisteck de Solomo",
+            "price": "$9.99",
+            "description": "Bisteck de Solomo con pimenton y cebolla salteado acompañado con ensalada verde y papas fritas",
             "cta": "Reserva tu porción, elije tus contornos"
+        },
+        {
+            "id": "lomito-pimenton",
+            "image": "Lomito_con_pimenton.jpg",
+            "name": "Lomito con pimentón",
+            "price": "$12.99",
+            "description": "Lomito de res salteado con pimenton y cebolla acompañado con pure de papas y ensalada verde",
+            "cta": "Pidelo aqui con los contornos que gustes o en la app https://loscincosabores.com"
+        },
+        {
+            "id": "delivery",
+            "image": "delivery.jpeg",
+            "name": "Servicio delivery",
+            "price": "Sectores: ",
+            "description": "centro $1, tipuro $2, alto los godos $2, juanico $2, zona industrial $3",
+            "cta": "Delivery gratis a partir de 2 almuerzos"
+        },
+        {
+            "id": "menu",
+            "image": "menuflyer.jpeg",
+            "name": "Anotando pedidos 📝",
+            "price": "-",
+            "description": "-",
+            "cta": "-"
         }
     ],
     "schedules": [
         {
-            "cron": "43 20 * * *",
-            "dishIds": ["costillas-cerdo", "filet-pollo", "lomo-cerdo"]
+            "cron": "* 11 * * *",
+            "dishIds": [
+                "delivery",
+                "lomito-pimenton",
+                "solomo",
+                "callos",
+                "costillas-cerdo",
+                "costillas-guisadas",
+                "filet-pollo",
+                "higado",
+                "lengua-salsa",
+                "lomo-cerdo",
+                "milanesa",
+                "pabellon",
+                "pescado-guinua",
+                "pasta-bologna",
+                "pollo-plancha",
+                "pollo-guisado"
+            ]
+        },
+        {
+            "cron": "42 19 * * *",
+            "dishIds": ["menu"]
         }
     ]
 }

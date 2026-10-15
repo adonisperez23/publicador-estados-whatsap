@@ -125,7 +125,7 @@
         },
         {
             "id": "delivery",
-            "image": "delivery.jpeg",
+            "image": "delivery-min.jpg",
             "name": "Servicio delivery",
             "price": "Sectores: ",
             "description": "centro $1, tipuro $2, alto los godos $2, juanico $2, zona industrial $3",
@@ -133,20 +133,32 @@
         },
         {
             "id": "menu",
-            "image": "menuflyer.jpeg",
+            "image": "menu-min.jpg",
             "name": "Anotando pedidos 📝",
-            "price": "-",
-            "description": "-",
-            "cta": "-"
+            "price": "🥘🥘🥘🥘",
+            "description": "🍲🍲🍲🍲",
+            "cta": "🍴🍴🍴🍴🍴"
+        },
+        {
+            "id": "proteina-por-lotes",
+            "image": "proteina-por-lotes.jpg",
+            "name": "🕐 Simplifica tu vida 🕐",
+            "price": "🗓️ Programa tus almuerzos de la semana 🗓️",
+            "description": "🍲🍲🍲🍲",
+            "cta": "🍴🍴🍴🍴🍴"
         }
     ],
     "schedules": [
         {
-            "cron": "* 11 * * *",
+            "cron": "0 11 * * *",
             "dishIds": [
+                "menu",
                 "delivery",
-                "lomito-pimenton",
-                "solomo",
+                "pabellon",
+                "pescado-guinua",
+                "pasta-bologna",
+                "pollo-plancha",
+                "pollo-guisado",
                 "callos",
                 "costillas-cerdo",
                 "costillas-guisadas",
@@ -155,16 +167,10 @@
                 "lengua-salsa",
                 "lomo-cerdo",
                 "milanesa",
-                "pabellon",
-                "pescado-guinua",
-                "pasta-bologna",
-                "pollo-plancha",
-                "pollo-guisado"
+                "solomo",
+                "lomito-pimenton",
+                "proteina-por-lotes"
             ]
-        },
-        {
-            "cron": "42 19 * * *",
-            "dishIds": ["menu"]
         }
     ]
 }

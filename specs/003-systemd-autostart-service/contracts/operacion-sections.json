@@ -1,0 +1,62 @@
+{
+  "$comment": "Contrato machine-checkable de OPERACION.md (feature 003). Lo consumen los tests de contrato; cualquier incumplimiento rompe FR-011/FR-012/FR-013 y US4 del spec. Formato: requiredSections son expresiones regulares evaluadas con flag 'm' (ancladas a líneas); requiredCommands y requiredStrings son subcadenas literales; forbiddenStrings son subcadenas que NO deben aparecer.",
+  "file": "OPERACION.md",
+  "feature": "003-systemd-autostart-service",
+  "requirements": {
+    "FR-011": "ciclo de vida completo documentado con comandos exactos y rutas",
+    "FR-012": "regla de recarga de menu.json (apagada ⇒ próximo encendida; corriendo ⇒ reinicio obligatorio)",
+    "FR-013": "estados operativo / reintentando / detenido por fallo",
+    "SC-005": "operador hace parada, arranque, reinicio y lectura del log en <= 1 min",
+    "SC-007": "desinstalación completa documentada"
+  },
+  "requiredSections": [
+    { "id": "ruta-rapida", "pattern": "^## Ruta rápida", "why": "US4 AC1: los 4 comandos en la sección inicial" },
+    { "id": "prerrequisitos", "pattern": "^## Prerrequisitos", "why": "FR-011" },
+    { "id": "instalacion", "pattern": "^## Instalación", "why": "FR-011/009, Principio VIII" },
+    { "id": "verificacion", "pattern": "^## Verificación", "why": "FR-011" },
+    { "id": "detener", "pattern": "^## Detener", "why": "FR-005/006" },
+    { "id": "arrancar-reiniciar", "pattern": "^## Arrancar / reiniciar", "why": "FR-005, FR-012" },
+    { "id": "estados", "pattern": "^## Estados del servicio", "why": "FR-013" },
+    { "id": "estado-y-logs", "pattern": "^## Ver estado y logs", "why": "FR-007/011, SC-002" },
+    { "id": "motivos", "pattern": "Motivos de fallo", "why": "FR-011, US3 AC3" },
+    { "id": "encendido", "pattern": "^## Comportamiento en el encendido", "why": "US1, FR-001/004" },
+    { "id": "archivos", "pattern": "^## Archivos del sistema", "why": "FR-011 (rutas exactas)" },
+    { "id": "desinstalacion", "pattern": "^## Desinstalar / deshabilitar", "why": "FR-011, SC-007" }
+  ],
+  "requiredCommands": [
+    "systemctl --user stop whatsapp-status.service",
+    "systemctl --user start whatsapp-status.service",
+    "systemctl --user restart whatsapp-status.service",
+    "systemctl --user status whatsapp-status.service",
+    "systemctl --user enable whatsapp-status.service",
+    "systemctl --user disable --now whatsapp-status.service",
+    "systemctl --user daemon-reload",
+    "loginctl enable-linger",
+    "loginctl disable-linger",
+    "journalctl --user -u whatsapp-status",
+    "tail -f /home/adonis/whatsapp-status.log",
+    "cp systemd/whatsapp-status.service ~/.config/systemd/user/",
+    "npm run login"
+  ],
+  "requiredStrings": [
+    "operativo",
+    "reintentando",
+    "detenido por fallo",
+    "systemd/whatsapp-status.service",
+    "/home/adonis/whatsapp-status.log",
+    "WorkingDirectory",
+    "xvfb",
+    "Linger",
+    "menu.json",
+    "sistema | - | exito",
+    "config-invalida",
+    "sesion-no-disponible",
+    "error-red",
+    "error-interfaz",
+    "timeout"
+  ],
+  "forbiddenStrings": [
+    "correr `node index.js`"
+  ],
+  "$forbiddenReason": "index.js corre headless y nunca muestra QR (Principio I): la instrucción de recuperación debe ser `npm run login` (research R9, dependencia 002 T032)."
+}

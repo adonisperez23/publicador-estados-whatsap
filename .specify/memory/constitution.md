@@ -1,21 +1,18 @@
 <!--
 Sync Impact Report
 ==================
-- Version change: unfilled template scaffold (no version) -> 1.0.0 (initial ratification)
-- Modified principles: N/A (initial fill; no prior principles existed)
-- Newly defined principles (Core Principles):
-  - I. Persistencia de Sesión Obligatoria
-  - II. Configuración Externa de Horarios
-  - III. Organización Estructurada de Contenido
-  - IV. Modularidad Estricta y Control de Versiones
-  - V. Selectores Robustos de WhatsApp Web
-  - VI. Validación Previa de Assets y Textos
-  - VII. Manejo de Errores y Resiliencia
-- Added sections: Project Nature and Technology Stack (replaces [SECTION_2_NAME]),
-  AI Agent Conduct (replaces [SECTION_3_NAME]), Governance (replaces [GOVERNANCE_RULES])
-- Removed sections: none (template placeholders only)
-- Follow-up TODOs: none. All [ALL_CAPS_IDENTIFIER] placeholders resolved; no deferred slots.
-- Note: this HTML comment is temporary scratch material and MUST be removed before commit.
+- Version change: 1.0.0 -> 1.1.0 (MINOR: nuevo principio de gobernanza)
+- Modified principles: none (I–VII intactos)
+- Newly added principle (Core Principles):
+  - VIII. Operación Desatendida y Reproducible
+- Added sections: none
+- Removed sections: none
+- Bump rationale: se añade un principio nuevo sin redefinir ni eliminar los
+  existentes => semver MINOR (adición de principios).
+- Dates: Ratified 2026-10-11 (sin cambio) | Last Amended 2026-10-12
+- Follow-up TODOs: none. Todos los placeholders resueltos.
+- Note: this HTML comment is temporary scratch material for review of this
+  amendment.
 -->
 
 # Automatizador de Estados de WhatsApp Business Constitution
@@ -108,6 +105,31 @@ ausente), que son más costosos que no publicar.
 **Rationale**: las ejecuciones programadas fallan en silencio si no hay limpieza
 determinista y trazas; los logs son el único canal de depuración.
 
+### VIII. Operación Desatendida y Reproducible
+
+- El daemon MUST arrancar automáticamente con el encendido de la PC, sin
+  intervención manual del operador; el mecanismo de arranque (servicio de sistema
+  con usuario persistente y display virtual para la publicación con ventana) MUST
+  estar definido por configuración versionada, no por pasos recordados.
+- La instalación, la operación y la desinstalación del servicio MUST estar
+  documentadas en el repositorio (`OPERACION.md`): comandos exactos de
+  arrancar/parar/reiniciar/verificar, rutas de la unidad de servicio y del log,
+  y el procedimiento de retirada completa.
+- La política de reintentos ante fallos MUST estar acotada por intentos dentro de
+  una ventana de tiempo; MUST existir un estado terminal (detenido) tras agotarlos
+  y el motivo MUST quedar registrado. Está prohibido cualquier reintento infinito.
+- Detener el servicio MUST dejar cero procesos huérfanos (incluido el navegador
+  Chromium) y los logs MUST conservar el formato de una línea por evento ya
+  establecido por la Constitución.
+- Los cambios en fuentes de configuración externas (`menu.json`, `assets/`) MUST
+  reflejarse en el siguiente arranque del proceso; si el cambio se realiza con el
+  servicio corriendo, el operador MUST reiniciarlo mediante el comando documentado.
+
+**Rationale**: una publicación programada solo ocurre si el proceso existe a la
+hora exacta; un servicio sin arranque automático, sin reintentos acotados o con
+logs inasequibles convierte cualquier fallo transitorio en un día sin
+publicaciones, invisible para el negocio.
+
 ## Project Nature and Technology Stack
 
 **Naturaleza**: herramienta de automatización basada en Node.js y Playwright para un
@@ -159,4 +181,4 @@ específicos, reduciendo la intervención manual y optimizando la difusión diar
 - **Guía de runtime**: la orientación de desarrollo diario pertenece a `spec.md` y a
   los artefactos derivados de él, los cuales MUST NO contradecir esta constitución.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-11 | **Last Amended**: 2026-10-11
+**Version**: 1.1.0 | **Ratified**: 2026-10-11 | **Last Amended**: 2026-10-12

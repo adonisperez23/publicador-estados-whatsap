@@ -1,5 +1,5 @@
 {
-    "publishIntervalSeconds": 10,
+    "publishIntervalSeconds": 20,
     "attemptTimeoutSeconds": 90,
     "dishes": [
         {
@@ -124,12 +124,20 @@
             "cta": "Pidelo aqui con los contornos que gustes o en la app https://loscincosabores.com"
         },
         {
+            "id": "punta-trasera",
+            "image": "puntatrasera.jpeg",
+            "name": "Punta trasera en salsa",
+            "price": "$9.99",
+            "description": "Punta trasera en salsa acompañado con papas al ajillo, arroz y tajadas",
+            "cta": "Pidelo aqui con los contornos que gustes o en la app https://loscincosabores.com"
+        },
+        {
             "id": "delivery",
             "image": "delivery-min.jpg",
-            "name": "Servicio delivery",
-            "price": "Sectores: ",
+            "name": "Delivery gratis a partir de 2 almuerzos",
+            "price": "Delivery para Sectores: ",
             "description": "centro $1, tipuro $2, alto los godos $2, juanico $2, zona industrial $3",
-            "cta": "Delivery gratis a partir de 2 almuerzos"
+            "cta": "🍲🍲🍲🍲"
         },
         {
             "id": "menu",
@@ -146,11 +154,19 @@
             "price": "🗓️ Programa tus almuerzos de la semana 🗓️",
             "description": "🍲🍲🍲🍲",
             "cta": "🍴🍴🍴🍴🍴"
+        },
+        {
+            "id": "delivery-free",
+            "image": "delivery-free.jpg",
+            "name": "Domingo Delivery Gratis",
+            "price": "📝 Recibiendo pedidos 📝",
+            "description": "🍲🍲🍲🍲",
+            "cta": "🍴🍴🍴🍴🍴"
         }
     ],
     "schedules": [
         {
-            "cron": "0 11 * * *",
+            "cron": "0 11 * * 1,3,4,5",
             "dishIds": [
                 "menu",
                 "delivery",
@@ -160,6 +176,12 @@
                 "pollo-plancha",
                 "pollo-guisado",
                 "callos",
+                "punta-trasera"
+            ]
+        },
+        {
+            "cron": "10 11 * * 1,3,4,5",
+            "dishIds": [
                 "costillas-cerdo",
                 "costillas-guisadas",
                 "filet-pollo",
@@ -170,6 +192,33 @@
                 "solomo",
                 "lomito-pimenton",
                 "proteina-por-lotes"
+            ]
+        },
+        {
+            "cron": "0 10 * * 0",
+            "dishIds": [
+                "delivery-free",
+                "menu",
+                "pabellon",
+                "pescado-guinua",
+                "pasta-bologna",
+                "pollo-plancha",
+                "pollo-guisado",
+                "callos"
+            ]
+        },
+        {
+            "cron": "10 10 * * 0",
+            "dishIds": [
+                "costillas-cerdo",
+                "costillas-guisadas",
+                "filet-pollo",
+                "higado",
+                "lengua-salsa",
+                "lomo-cerdo",
+                "milanesa",
+                "solomo",
+                "lomito-pimenton"
             ]
         }
     ]

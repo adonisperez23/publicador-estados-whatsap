@@ -73,7 +73,7 @@ systemctl --user show whatsapp-status -p NRestarts  # cuántos reintentos acumul
 | `sesion-no-disponible` | Falta `session/` o la sesión caducó (el ciclo nunca muestra QR) | Re-autenticar manualmente: borrar `session/`, correr `node index.js` en una terminal, escanear QR; luego `restart` del servicio |
 | `timeout` | Un intento superó el presupuesto de 90 s | Revisar conexión; si es constante, subir `attemptTimeoutSeconds` (máx. 90) en `menu.json` |
 | `error-red` | No se alcanzó WhatsApp Web | Revisar internet; el servicio reintenta solo (45 s, máx. 5 veces en 10 min) |
-| `error-interfaz` | Cambio de interfaz de WhatsApp Web o fallo de Chromium | Revisar `diagnostics/`; reinstalar chromium con `npx playwright install chromium` |
+| `error-interfaz` | Cambio de interfaz de WhatsApp Web o fallo de Chromium | Buscar en el log la línea `[detalle]` del intento: indica `etapa=` exacta (interfaz, pestana-estados, selector-archivos, comentario, carga-imagen, envio, subida); revisar `diagnostics/` si existe; reinstalar chromium con `npx playwright install chromium` |
 | `imagen-faltante` / `texto-vacío` / `texto-largo` | Validación de un plato falló (omisión, no bloquea) | Completar/corregir el plato en `menu.json` y `assets/` |
 
 ## Comportamiento en el arranque de la PC

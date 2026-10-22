@@ -2,7 +2,8 @@
 
 // T023: flujo completo de publicación contra una página controlada que replica la
 // estructura de selectores estables de WhatsApp Web OBSERVADA en oct-2026 (roles
-// ARIA de la lista de chats, aria-label del compositor y data-icon del envío).
+// ARIA de la lista de chats, aria-label del compositor y aria-label del envío —
+// WhatsApp retiró el data-icon del botón de envío, ahora role=button + aria-label).
 // Cubre: sesión autenticada/no autenticada, subida de imagen, texto y confirmación.
 
 const { test, before, after } = require('node:test');
@@ -46,7 +47,7 @@ const MOCK_HTML = `<!doctype html>
   <div id="composer" style="display:none">
     <div id="preview-box"></div>
     <div role="textbox" contenteditable="true" aria-label="Añade un comentario" id="caption"></div>
-    <span data-icon="wds-ic-send-filled" id="send"></span>
+    <div role="button" tabindex="0" aria-label="Enviar 1 seleccionado" aria-disabled="false" id="send"></div>
   </div>
   <script>
     const params = new URLSearchParams(location.search);

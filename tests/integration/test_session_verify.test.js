@@ -40,6 +40,20 @@ test('FR-003: indicador visible ⇒ autenticado con retorno inmediato (sin agota
   assert.equal(resultado.esperaAplicadaMs, 15000);
 });
 
+test('T026 / FR-006: sin tope interno de 30 s — timeoutMs se aplica tal cual', async () => {
+  // La primera carga real de WhatsApp Web puede superar 30 s («Cargando tus
+  // chats… descargando mensajes»); el clamp heredado recortaba 32000 a 30000.
+  const resultado = await bot.verifySession({
+    url: `${server.baseUrl}/authenticated.html`,
+    headless: true,
+    timeoutMs: 32000,
+    sessionDir
+  });
+  assert.equal(resultado.autenticado, true);
+  assert.equal(resultado.esperaAplicadaMs, 32000, 'el tope de 30 s debe estar eliminado');
+  assert.ok(resultado.duracionMs < 5000, 'retorno inmediato: el plazo no se consume');
+});
+
 test('SC-002: sigue autenticada ocultando CADA indicador por turnos', async () => {
   for (const hide of ['chats', 'grid', 'tablist', 'listitem']) {
     const resultado = await bot.verifySession({

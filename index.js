@@ -91,9 +91,14 @@ function ensureSessionPermissions() {
  */
 async function attemptPublish(dish, config) {
   const budgetMs = config.attemptTimeoutSeconds * 1000;
+  // AbortController: cuando el presupuesto vence, se cierra el contexto de
+  // Playwright YA (sino el Chromium queda vivo y bloquea session/ para el
+  // siguiente intento — «profile is already in use» en el log).
+  const controller = new AbortController();
   let timer;
   const budget = new Promise((_, reject) => {
     timer = setTimeout(() => {
+      controller.abort();
       reject(Object.assign(new Error(`intento superó ${budgetMs} ms`), { motivo: 'timeout' }));
     }, budgetMs);
   });
@@ -111,7 +116,8 @@ async function attemptPublish(dish, config) {
         await bot.publishStatus({
           imagePath: path.join(ASSETS_DIR, dish.image),
           text: composeStatusText(dish),
-          timeoutMs: budgetMs
+          timeoutMs: budgetMs,
+          signal: controller.signal
         });
       })(),
       budget
@@ -127,6 +133,10 @@ async function attemptPublish(dish, config) {
     return false;
   } finally {
     clearTimeout(timer);
+    // Si el presupuesto ganó la carrera, publishStatus puede seguir corriendo
+    // un instante hasta que el abort surta efecto; el listener del bot ya cierra
+    // el contexto, aquí solo se garantiza que ninguno quede huérfano.
+    controller.abort();
   }
 }
 

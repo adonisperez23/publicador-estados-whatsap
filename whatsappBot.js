@@ -7,6 +7,7 @@
 
 const path = require('path');
 const { chromium } = require('playwright');
+const { localIso } = require('./lib/logger');
 
 const SESSION_DIR = path.join(__dirname, 'session');
 const WHATSAPP_URL = 'https://web.whatsapp.com';
@@ -20,7 +21,10 @@ const USER_AGENT =
 // Selectores encapsulados (research.md R4). Solo cambian ante un cambio observado del DOM.
 // Observados en WhatsApp Web (oct-2026): la interfaz ya NO usa data-icon de navegación
 // ni role="navigation"/"main"; la app se identifica por roles ARIA de la lista de chats
-// y la publicación por aria-label + data-icon del compositor de Estados.
+// y la publicación por aria-label del compositor de Estados.
+// Observado (21-oct-2026): WhatsApp retiró casi todos los data-icon (el resto es SVG
+// inline con <title>ic-send-filled</title>); el botón de envío pasó a ser
+// div[role="button"][aria-label] localizado (ES/EN), igual que la pestaña de Estados.
 const SELECTORS = Object.freeze({
   authenticated: 'div[role="grid"]',
   // T007 (US1): indicadores estables alternativos de la interfaz autenticada
@@ -46,7 +50,10 @@ const SELECTORS = Object.freeze({
   statusMenu: 'div[role="menu"] [role="menuitem"]',
   fileInput: 'input[type="file"]',
   caption: 'div[role="textbox"][contenteditable="true"]',
-  send: 'span[data-icon="wds-ic-send-filled"]',
+  // El envío ya no lleva data-icon: es role=button con aria-label localizado (ES/EN)
+  // que además incluye el conteo del adjunto («Enviar 1 seleccionado», oct-2026):
+  // se matchea por PREFIJO, nunca igualdad exacta.
+  send: 'div[role="button"][aria-label^="Enviar"], div[role="button"][aria-label^="Send"]',
   // Fila «Mi estado» del panel de Estados. Tras enviar, el cliente muestra ahí
   // «Enviando…» mientras sube la imagen al CDN de WhatsApp.
   myStatusRow: 'button[data-testid="status-header"]'
@@ -112,6 +119,26 @@ function classify(err) {
 }
 
 /**
+ * Diagnóstico de fallo de publicación en stderr (una sola línea, prefijo fijo
+ * `[detalle]` que NO casca con los invariantes/greps del contrato de log
+ * `tipo=intento|omision|sistema`): etapa exacta + motivo + primeros rasgos del
+ * error, con las rutas de session/ ocultas (FR-016). El enum de motivos y el
+ * formato de log quedan intactos (SC-005) — la línea de contrato la emite
+ * index.js con el mismo motivo.
+ * @param {Error & {motivo?: string, stage?: string}} err
+ * @param {string} stage etapa en curso cuando se produjo el fallo
+ */
+function emitirDetalle(err, stage) {
+  const motivo = (err && err.motivo) || 'error-interfaz';
+  const detalle = String((err && err.message) || err)
+    .replace(/\u001b\[[0-9;]*m/g, '') // códigos ANSI del call log de Playwright
+    .replace(/\s+/g, ' ')
+    .replace(/\S*session\/\S*/g, 'session/[oculto]')
+    .slice(0, 300);
+  console.error(`[detalle] ${localIso()} etapa=${stage} motivo=${motivo} :: ${detalle}`);
+}
+
+/**
  * T014 (US2): clasificación PURA de una verificación (research R3, FR-004/005) —
  * testeable sin navegador. Orden de decisión:
  *  (1) fallo de arranque de chromium ⇒ interfaz-no-cargo-a-tiempo («navegador no disponible»)
@@ -164,8 +191,11 @@ function classifyVerification(observacion) {
   return { decidir: false, autenticado: false, causa: null, detalle: '' };
 }
 
+// T026 (FR-006): sin tope interno de 30 s — cada paso espera hasta el plazo que le
+// pasa el caller (verificación: timeoutMs tal cual; publicación: presupuesto del
+// intento, attemptTimeoutSeconds). El mínimo de 1 s evita esperas inútiles.
 function stepTimeout(timeoutMs) {
-  return Math.min(30000, Math.max(1000, timeoutMs));
+  return Math.max(1000, timeoutMs);
 }
 
 async function closeQuietly(context) {
@@ -226,12 +256,15 @@ async function estadoCargaImagen(page) {
         const previas = Array.from(contenedor.querySelectorAll('img')).filter(visible);
         const previaPendiente = previas.some((img) => !img.complete);
         const progreso = Array.from(contenedor.querySelectorAll(indicadores.join(','))).some(visible);
-        const enviar = document.querySelector('span[data-icon="wds-ic-send-filled"]');
-        const envioBloqueado = !!enviar && enviar.closest('[aria-disabled="true"]') !== null;
+        const enviar = document.querySelector(enviarSelector);
+        const envioBloqueado =
+          !!enviar &&
+          (enviar.getAttribute('aria-disabled') === 'true' ||
+            enviar.closest('[aria-disabled="true"]') !== null);
 
         return { observable: true, previaPendiente, progreso, envioBloqueado };
       },
-      { indicadores: MEDIA_LOADING_SELECTORS, niveles: COMPOSER_ANCESTOR_LEVELS }
+      { indicadores: MEDIA_LOADING_SELECTORS, niveles: COMPOSER_ANCESTOR_LEVELS, enviarSelector: SELECTORS.send }
     );
   } catch {
     return { observable: false, previaPendiente: false, progreso: false, envioBloqueado: false };
@@ -383,8 +416,9 @@ async function tomarObservacion(page) {
  *   evidencia: {captura: Buffer|null, resumen: object|null}}>}
  */
 async function verifySession({ timeoutMs = 30000, url = WHATSAPP_URL, headless = true, sessionDir = SESSION_DIR } = {}) {
-  // clamp temporal heredado (stepTimeout): FR-006 exige eliminar el tope en T026
-  const esperaAplicadaMs = stepTimeout(timeoutMs);
+  // T026 (FR-006): timeoutMs tal cual, sin clamp interno — la primera carga de
+  // WhatsApp Web puede superar 30 s («Cargando tus chats… descargando mensajes»).
+  const esperaAplicadaMs = Math.max(1000, timeoutMs);
   const inicio = Date.now();
   const limite = inicio + esperaAplicadaMs;
   let context = null;
@@ -454,14 +488,31 @@ async function verifySession({ timeoutMs = 30000, url = WHATSAPP_URL, headless =
 
 /**
  * Publica UN Estado: imagen + texto del plato. Lanza Error con `.motivo` tipado
- * ('error-interfaz' | 'error-red' | 'sesion-no-disponible') o timeout interno.
+ * ('error-interfaz' | 'error-red' | 'sesion-no-disponible') y `.stage` con la etapa
+ * exacta del fallo; además emite una línea `[detalle]` en stderr (emitirDetalle).
  * Flujo vigente (oct-2026): pestaña Estados → «Add Status» → menú «Fotos y videos»
  * (abre el selector de archivos nativo) → comentario → enviar.
- * @param {{imagePath: string, text: string, timeoutMs: number}} params
+ * Etapas: navegacion · interfaz · pestana-estados · selector-archivos ·
+ * comentario · carga-imagen · envio · subida.
+ * @param {{imagePath: string, text: string, timeoutMs: number, signal?: AbortSignal}} params
  */
-async function publishStatus({ imagePath, text, timeoutMs = 90000, url = WHATSAPP_URL, headless = false, sessionDir = SESSION_DIR }) {
+async function publishStatus({ imagePath, text, timeoutMs = 90000, url = WHATSAPP_URL, headless = false, sessionDir = SESSION_DIR, signal = null }) {
   let context;
   let stage = 'navegacion';
+  // El caller (presupuesto del intento) puede abortar: se cierra el contexto YA
+  // para no dejar un Chromium vivo reteniendo el candado del perfil session/.
+  const alAbortar = () => {
+    closeQuietly(context);
+  };
+  if (signal) {
+    if (signal.aborted) {
+      throw Object.assign(new Error('intento abortado por presupuesto'), {
+        motivo: 'timeout',
+        stage: 'presupuesto'
+      });
+    }
+    signal.addEventListener('abort', alAbortar);
+  }
   try {
     context = await chromium.launchPersistentContext(sessionDir, { headless, userAgent: USER_AGENT });
     const page = context.pages()[0] || (await context.newPage());
@@ -475,6 +526,7 @@ async function publishStatus({ imagePath, text, timeoutMs = 90000, url = WHATSAP
 
     // Abrir la pestaña de Estados. El aria-label está localizado: si el clic no abre
     // el compositor (otro idioma de la cuenta), se navega por la ruta estable.
+    stage = 'pestana-estados';
     await page.locator(SELECTORS.statusTab).first().click();
     try {
       await page.locator(SELECTORS.addStatus).first().waitFor({ state: 'visible', timeout: STATUS_TAB_TIMEOUT_MS });
@@ -485,6 +537,7 @@ async function publishStatus({ imagePath, text, timeoutMs = 90000, url = WHATSAP
 
     // «Add Status» despliega el menú; «Fotos y videos» dispara el selector de archivos
     // nativo, que Playwright intercepta como filechooser.
+    stage = 'selector-archivos';
     await page.locator(SELECTORS.addStatus).first().click();
     const fileChooser = page
       .waitForEvent('filechooser', { timeout: stepTimeout(timeoutMs) })
@@ -499,6 +552,7 @@ async function publishStatus({ imagePath, text, timeoutMs = 90000, url = WHATSAP
 
     // Escribir el texto del plato (nombre, precio, descripción y CTA). El textbox
     // del compositor es también la señal de que la vista previa ya está montada.
+    stage = 'comentario';
     const caption = page.locator(SELECTORS.caption).last();
     await caption.waitFor({ state: 'visible', timeout: stepTimeout(timeoutMs) });
 
@@ -507,6 +561,7 @@ async function publishStatus({ imagePath, text, timeoutMs = 90000, url = WHATSAP
     stage = 'carga-imagen';
     await esperarCargaImagen(page, Math.min(IMAGE_LOAD_TIMEOUT_MS, stepTimeout(timeoutMs)));
 
+    stage = 'envio';
     await caption.fill(text);
 
     // Publicar y verificar confirmación (el compositor se cierra)
@@ -525,11 +580,20 @@ async function publishStatus({ imagePath, text, timeoutMs = 90000, url = WHATSAP
 
     return { ok: true };
   } catch (err) {
-    if (stage === 'navegacion') {
-      throw classify(tagMotivo(err, 'error-red'));
-    }
-    throw classify(err);
+    // Si el caller abortó (presupuesto vencido), el motivo es timeout — el
+    // error de Playwright por contexto cerrado es consecuencia, no la causa.
+    const abortado = !!(signal && signal.aborted);
+    const etiquetado = abortado
+      ? tagMotivo(err, 'timeout')
+      : stage === 'navegacion'
+        ? tagMotivo(err, 'error-red')
+        : err;
+    const fallado = classify(etiquetado);
+    fallado.stage = abortado ? 'presupuesto' : stage;
+    emitirDetalle(fallado, fallado.stage);
+    throw fallado;
   } finally {
+    if (signal) signal.removeEventListener('abort', alAbortar);
     await closeQuietly(context);
   }
 }
